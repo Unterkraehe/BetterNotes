@@ -1,14 +1,23 @@
 package de.opmlg.betternotes;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -19,29 +28,67 @@ public class MainActivity extends AppCompatActivity {
     private ImageView btnNewNote;
     private ArrayList<String> noteList;
     private ArrayAdapter<String> adapterNoteList;
+    public NoteManager noteManager;
+    public static String filesDir;
+    private String noteName;
 
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(getDrawable(R.drawable.buttons));
+        Objects.requireNonNull(getSupportActionBar()).setBackgroundDrawable(getDrawable(R.drawable.toolbar_background));
+
+        noteManager = new NoteManager();
+        filesDir = getApplicationContext().getFilesDir().getAbsolutePath();
 
         lvNotes = (ListView) findViewById(R.id.lvList);
         btnNewNote = findViewById(R.id.btnNewNote);
         noteList = new ArrayList<>();
-        for(int i = 0; i < 2; i++){
-            noteList.add("Row" + i);
-        }
-        adapterNoteList = new ArrayAdapter<String>(getApplicationContext(), R.layout.notes_list_item, noteList);
+        adapterNoteList = new ArrayAdapter<>(getApplicationContext(), R.layout.notes_list_item, noteList);
         lvNotes.setAdapter(adapterNoteList);
+        noteManager.loadNotes(adapterNoteList);
 
-        btnNewNote.setOnClickListener(new View.OnClickListener() {
+        btnNewNote.setOnClickListener(v -> {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getMainActivityContext());
+            builder.setTitle(getString(R.string.dialog_new_name));
+
+            EditText input = new EditText(getMainActivityContext());
+
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            builder.setView(input);
+
+            builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> noteManager.addNote(adapterNoteList, input.getText().toString(), getApplicationContext()));
+            builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.cancel());
+            Dialog dialog = builder.create();
+            dialog.show();
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.buttons);
+        });
+
+        lvNotes.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onClick(View v) {
-                adapterNoteList.add("YEET");
-                adapterNoteList.notifyDataSetChanged();
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getMainActivityContext());
+                builder.setTitle(getString(R.string.dialog_delete_name));
+
+                TextView content = new TextView(getMainActivityContext());
+
+                content.setPadding(50, 0, 50, 0);
+                content.setText(R.string.dialog_delete_text);
+                builder.setView(content);
+
+                builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> noteManager.deleteNote(adapterNoteList, position, getApplicationContext()));
+                builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.cancel());
+                Dialog dialog = builder.create();
+                dialog.show();
+                dialog.getWindow().setBackgroundDrawableResource(R.drawable.buttons);
+                return true;
             }
         });
+    }
+
+    public Context getMainActivityContext(){
+        return this;
     }
 }
