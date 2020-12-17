@@ -8,9 +8,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> adapterNoteList;
     public NoteManager noteManager;
     public static String filesDir;
-    private String noteName;
 
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
@@ -64,31 +65,47 @@ public class MainActivity extends AppCompatActivity {
             Dialog dialog = builder.create();
             dialog.show();
             dialog.getWindow().setBackgroundDrawableResource(R.drawable.buttons);
+            input.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                        noteManager.addNote(adapterNoteList, input.getText().toString(), getApplicationContext());
+                        dialog.cancel();
+                        return true;
+                    }
+                    return false;
+                }
+            });
         });
 
-        lvNotes.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getMainActivityContext());
-                builder.setTitle(getString(R.string.dialog_delete_name));
+        lvNotes.setOnItemClickListener((parent, view, position, id) -> {
+            Intent intent = new Intent(MainActivity.this, NoteActivity.class);
+            Bundle noteName = new Bundle();
+            noteName.putString("noteName", (String) parent.getItemAtPosition(position));
+            intent.putExtras(noteName); //Put your id to your next Intent
+            startActivity(intent);
+        });
 
-                TextView content = new TextView(getMainActivityContext());
+        lvNotes.setOnItemLongClickListener((parent, view, position, id) -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getMainActivityContext());
+            builder.setTitle(getString(R.string.dialog_delete_name));
 
-                content.setPadding(50, 0, 50, 0);
-                content.setText(R.string.dialog_delete_text);
-                builder.setView(content);
+            TextView content = new TextView(getMainActivityContext());
 
-                builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> noteManager.deleteNote(adapterNoteList, position, getApplicationContext()));
-                builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.cancel());
-                Dialog dialog = builder.create();
-                dialog.show();
-                dialog.getWindow().setBackgroundDrawableResource(R.drawable.buttons);
-                return true;
-            }
+            content.setPadding(50, 0, 50, 0);
+            content.setText(R.string.dialog_delete_text);
+            builder.setView(content);
+
+            builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> noteManager.deleteNote(adapterNoteList, position, getApplicationContext()));
+            builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.cancel());
+            Dialog dialog = builder.create();
+            dialog.show();
+            dialog.getWindow().setBackgroundDrawableResource(R.drawable.buttons);
+            return true;
         });
     }
 
-    public Context getMainActivityContext(){
+    public Context getMainActivityContext() {
         return this;
     }
 }
