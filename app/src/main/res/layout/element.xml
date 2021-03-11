@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:autofillHints="Text"
+    android:background="@drawable/buttons"
+    android:gravity="center_vertical|center_horizontal"
+    android:inputType="textMultiLine"
+    android:orientation="horizontal"
+    android:padding="5dp"
+    android:textColor="@color/white"
+    android:textSize="24sp">
+
+    <EditText
+        android:id="@+id/elText_EditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/teal_200"
+        android:inputType="textMultiLine"
+        android:shadowColor="@color/teal_200"
+        android:textColor="@color/white"
+        android:textColorHighlight="@color/teal_200"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/elImage_ImageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:visibility="gone" />
+
+</LinearLayout>

@@ -9,7 +9,7 @@
 
     <ListView
         android:dividerHeight="4dp"
-        android:id="@+id/lvList"
+        android:id="@+id/lvElementList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="4dp"
